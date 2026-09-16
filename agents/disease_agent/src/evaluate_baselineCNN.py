@@ -64,12 +64,9 @@ print(
 
 # Confusion matrix
 cm = confusion_matrix(all_labels, all_predictions)
-
 print("Confusion Matrix:")
 print(cm)
-
 print("\nClass order:")
 for i, class_name in enumerate(CLASS_NAMES):
     print(f"{i}: {class_name}")
-
 print("=" * 60)

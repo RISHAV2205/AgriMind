@@ -32,29 +32,21 @@ CLASS_NAMES = [
 
 
 class TomatoDiseaseDataset(Dataset):
-
     def __init__(self, dataframe, transform=None):
-
         self.dataframe = dataframe.reset_index(drop=True)
         self.transform = transform
-
     def __len__(self):
         return len(self.dataframe)
-
     def __getitem__(self, index):
-
         row = self.dataframe.iloc[index]
         image_path = DATASET_ROOT / row["image_path"]
         label = int(row["label"])
-
         # Open image
         image = Image.open(image_path).convert("RGB")
         # print(image)
-
         # Apply transformations
         if self.transform is not None:
             image = self.transform(image)
-
         return image, label
 
 
@@ -63,40 +55,28 @@ class TomatoDiseaseDataset(Dataset):
 # --------------------------------------------------
 
 def create_datasets():
-
-    # Read CSV
     df = pd.read_csv(CSV_PATH)
-
-    # Separate splits
     train_df = df[df["split"] == "train"].copy()
-
     val_df = df[df["split"] == "val"].copy()
-
     test_df = df[df["split"] == "test"].copy()
-
-    # Create datasets
     train_dataset = TomatoDiseaseDataset(
         train_df,
         transform=get_train_transforms()
     )
-
     val_dataset = TomatoDiseaseDataset(
         val_df,
         transform=get_eval_transforms()
     )
-
     test_dataset = TomatoDiseaseDataset(
         test_df,
         transform=get_eval_transforms()
     )
-
     return train_dataset, val_dataset, test_dataset
 
 
 
 
 def create_dataloaders():
-
     train_dataset, val_dataset, test_dataset = create_datasets()
     # because we don't want the model to see training examples in the same order every epoch.
     train_loader = DataLoader(

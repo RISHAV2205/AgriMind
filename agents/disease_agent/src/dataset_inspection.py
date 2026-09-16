@@ -44,7 +44,6 @@ def inspect_dataset():
     for class_dir in class_directories:
 
         class_name = class_dir.name
-
         image_files = [
             file
             for file in class_dir.iterdir()
