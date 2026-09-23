@@ -1,6 +1,8 @@
 import torch
 from PIL import Image
 from torchvision import models
+import torch
+import torch.nn as nn
 
 from agents.disease_agent.src.dataset import CLASS_NAMES
 from agents.disease_agent.src.preprocessing import get_eval_transforms
@@ -16,23 +18,15 @@ DEVICE = torch.device(
 
 
 def load_model():
-    model = models.resnet18(
-        weights=None
+    model = models.resnet18(weights=None)
+    model.fc = nn.Linear(model.fc.in_features, 5)
+
+    checkpoint = torch.load(
+        MODEL_PATH,
+        map_location=DEVICE
     )
 
-    num_features = model.fc.in_features
-
-    model.fc = torch.nn.Linear(
-        num_features,
-        len(CLASS_NAMES)
-    )
-
-    model.load_state_dict(
-        torch.load(
-            MODEL_PATH,
-            map_location=DEVICE
-        )
-    )
+    model.load_state_dict(checkpoint["model_state_dict"])
 
     model.to(DEVICE)
     model.eval()
@@ -81,7 +75,6 @@ def predict(image_path):
 if __name__ == "__main__":
 
     result = predict(
-        "D:\AgriMind\agents\disease_agent\data\test\tomato-early-blight-11-768x510.jpg"
-    )
+    r"D:\AgriMind\agents\disease_agent\data\test\tomato-early-blight-11-768x510.jpg")
 
     print(result)
