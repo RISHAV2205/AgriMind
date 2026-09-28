@@ -16,8 +16,9 @@ MAX_IMAGE_BYTES = 10 * 1024 * 1024
 async def analyze_crop(
     crop: str = Form(..., min_length=2, max_length=80),
     image: UploadFile = File(...),
+    location: str | None = Form(default=None, max_length=160),
 ) -> AnalyzeResponse:
-    """Analyze a crop image through the multi-agent orchestrator."""
+    """Analyze a crop image and optionally add local weather context."""
     if image.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
@@ -31,7 +32,11 @@ async def analyze_crop(
         raise HTTPException(status_code=413, detail="Image must be 10 MB or smaller.")
 
     try:
-        result = orchestrator.analyze(crop=crop, image_bytes=image_bytes)
+        result = orchestrator.analyze(
+            crop=crop,
+            image_bytes=image_bytes,
+            location=location,
+        )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     except RuntimeError as error:
