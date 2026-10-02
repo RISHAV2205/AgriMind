@@ -52,19 +52,15 @@ def inspect_dataset():
         ]
 
         class_counts[class_name] = len(image_files)
-
         print(
             f"{class_name:<40} {len(image_files)} images"
         )
-
         # ----------------------------------------------------
         # Inspect individual images
         # ----------------------------------------------------
 
         for image_file in image_files:
-
             total_images += 1
-
             formats[image_file.suffix.lower()] += 1
 
             try:

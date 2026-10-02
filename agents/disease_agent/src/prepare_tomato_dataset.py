@@ -10,7 +10,6 @@ import shutil
 ZIP_PATH = Path(
     r"C:\Users\RISHAV\Downloads\archive (2).zip"
 )
-
 TARGET_DIR = Path(
     r"D:\AgriMind\agents\disease_agent\data\raw\tomato_5_classes"
 )
@@ -23,7 +22,6 @@ SELECTED_CLASSES = [
     "Tomato_Septoria_leaf_spot",
 ]
 
-
 # Supported image formats
 IMAGE_EXTENSIONS = {
     ".jpg",
@@ -31,10 +29,6 @@ IMAGE_EXTENSIONS = {
     ".png"
 }
 
-
-# ============================================================
-# Main function
-# ============================================================
 
 def prepare_dataset():
 

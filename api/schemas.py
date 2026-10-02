@@ -12,7 +12,6 @@ class DiseasePrediction(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     model_version: str
 
-
 class AgentExecution(BaseModel):
     """Traceable, safe-to-return summary of an agent invocation."""
 
@@ -20,10 +19,8 @@ class AgentExecution(BaseModel):
     status: Literal["success", "skipped", "failed"]
     warnings: list[str] = Field(default_factory=list)
 
-
 class AnalyzeResponse(BaseModel):
     """Stable API response that can grow as new agents are connected."""
-
     status: Literal["success", "partial"]
     crop: str
     disease: DiseasePrediction | None = None

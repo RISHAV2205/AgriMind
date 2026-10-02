@@ -73,8 +73,6 @@ def predict(image_path):
 
 
 if __name__ == "__main__":
-
     result = predict(
     r"D:\AgriMind\agents\disease_agent\data\test\tomato-early-blight-11-768x510.jpg")
-
     print(result)

@@ -37,12 +37,15 @@ async def analyze_crop(
             image_bytes=image_bytes,
             location=location,
         )
+    
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     except RuntimeError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
+    # print(result)
 
     disease = result.get("disease")
+    print(disease)
     return AnalyzeResponse(
         status=result["status"],
         crop=result["crop"],

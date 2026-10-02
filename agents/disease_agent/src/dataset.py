@@ -107,23 +107,19 @@ def create_dataloaders():
 if __name__ == "__main__":
 
     train_loader, val_loader, test_loader = create_dataloaders()
-
     print("Dataset loaded successfully! ✅")
-    
-
     print(f"Training samples:   {len(train_loader.dataset)}")
     print(f"Validation samples: {len(val_loader.dataset)}")
     print(f"Test samples:       {len(test_loader.dataset)}")
 
     print(f"\nNumber of classes: {len(CLASS_NAMES)}")
     print(f"Classes: {CLASS_NAMES}")
-
-    # Get one batch
     images, labels = next(iter(train_loader))
-
+    
     print("\nFirst training batch:")
     print(f"Image tensor shape: {images.shape}")
     print(f"Label tensor shape: {labels.shape}")
 
     print(f"\nLabels in first batch:")
     print(labels)
+    

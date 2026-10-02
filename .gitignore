@@ -31,7 +31,6 @@ Thumbs.db
 *.h5
 
 
-
 # Model directories
 agents/disease_agent/models/
 

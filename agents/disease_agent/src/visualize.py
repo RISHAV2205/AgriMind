@@ -64,17 +64,12 @@ def visualize_training_images(num_images=8):
         "AgriMind - Training Dataset Visualization",
         fontsize=16
     )
-
     plt.tight_layout()
-
     plt.show()
-
 
 if __name__ == "__main__":
 
     print("Loading training dataset...")
-
     visualize_training_images()
-
     print("Visualization completed.")
 

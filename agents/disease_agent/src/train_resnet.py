@@ -104,11 +104,9 @@ best_model_weights = copy.deepcopy(
 
 
 for epoch in range(EPOCHS):
-
     # --------------------------------------------------------
     # TRAINING
     # --------------------------------------------------------
-
     model.train()
 
     running_loss = 0.0
@@ -222,7 +220,6 @@ for epoch in range(EPOCHS):
     # --------------------------------------------------------
 
     if val_acc > best_val_acc:
-
         best_val_acc = val_acc
 
         best_model_weights = copy.deepcopy(

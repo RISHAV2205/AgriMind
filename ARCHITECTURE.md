@@ -125,7 +125,6 @@ Every agent should return a contract similar to:
 ```
 
 Important entities:
-
 - `FarmProfile`: owner, location at district/coordinates level, crops, fields,
   planting dates, language, soil/sensor configuration.
 - `FarmQuery`: input text, media references, current crop/field, timestamp.

@@ -17,3 +17,6 @@ def build_graph(disease_agent: DiseaseAgent, weather_agent: WeatherAgent):
     graph.add_edge("disease_agent", "weather_agent")
     graph.add_edge("weather_agent", END)
     return graph.compile()
+
+
+
