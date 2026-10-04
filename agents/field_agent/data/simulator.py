@@ -3,17 +3,14 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+
 import random
 
 from agents.field_agent.src.interface import FieldReading
 
 
 class FieldDataSimulator:
-    """Generate bounded random-walk soil readings, separately for each field.
-
-    Values evolve from the prior reading rather than being independently random.
-    This makes moisture and nutrient trends suitable for future risk detection.
-    """
+    """Generate realistic soil readings using a bounded random walk."""
 
     _INITIAL_RANGES = {
         "soil_moisture_percent": (35.0, 65.0),
@@ -35,49 +32,89 @@ class FieldDataSimulator:
 
     def __init__(self, seed: int | None = None) -> None:
         self._random = random.Random(seed)
-        self._latest_by_field: dict[str, FieldReading] = {}
 
-    def get_reading(self, field_id: str) -> FieldReading:
-        """Return the next soil snapshot for a field's evolving random walk."""
+    def get_reading(
+        self,
+        field_id: str,
+        previous: FieldReading | None = None,
+    ) -> FieldReading:
+        """Generate the next reading for a field."""
+
         cleaned_field_id = field_id.strip()
+
         if not cleaned_field_id:
             raise ValueError("field_id is required.")
 
-        previous = self._latest_by_field.get(cleaned_field_id)
-        reading = (
-            self._initial_reading(cleaned_field_id)
-            if previous is None
-            else self._next_reading(previous)
-        )
-        self._latest_by_field[cleaned_field_id] = reading
-        return reading
+        if previous is None:
+            return self._initial_reading(cleaned_field_id)
+
+        return self._next_reading(previous)
 
     def _initial_reading(self, field_id: str) -> FieldReading:
         values = {
             name: self._random.uniform(*value_range)
             for name, value_range in self._INITIAL_RANGES.items()
         }
+
         return self._to_reading(field_id, values)
 
-    def _next_reading(self, previous: FieldReading) -> FieldReading:
-        # Moisture generally falls between irrigations, with small natural noise.
-        moisture_change = -self._random.uniform(0.10, 0.55) + self._random.gauss(0, 0.12)
-        values = {
-            "soil_moisture_percent": previous.soil_moisture_percent + moisture_change,
-            "soil_temperature_c": previous.soil_temperature_c + self._random.gauss(0, 0.35),
-            "soil_ph": previous.soil_ph + self._random.gauss(0, 0.012),
-            "nitrogen_mg_kg": previous.nitrogen_mg_kg - self._random.uniform(0.01, 0.12),
-            "phosphorus_mg_kg": previous.phosphorus_mg_kg - self._random.uniform(0.005, 0.06),
-            "potassium_mg_kg": previous.potassium_mg_kg - self._random.uniform(0.01, 0.10),
-        }
-        return self._to_reading(previous.field_id, values)
+    def _next_reading(
+        self,
+        previous: FieldReading,
+    ) -> FieldReading:
+        """Generate a new reading based on the previous reading."""
 
-    def _to_reading(self, field_id: str, values: dict[str, float]) -> FieldReading:
+        # Moisture generally decreases between irrigation events.
+        moisture_change = (
+            -self._random.uniform(0.10, 0.55)
+            + self._random.gauss(0, 0.12)
+        )
+
+        values = {
+            "soil_moisture_percent":
+                previous.soil_moisture_percent + moisture_change,
+
+            "soil_temperature_c":
+                previous.soil_temperature_c
+                + self._random.gauss(0, 0.35),
+
+            "soil_ph":
+                previous.soil_ph
+                + self._random.gauss(0, 0.012),
+
+            "nitrogen_mg_kg":
+                previous.nitrogen_mg_kg
+                - self._random.uniform(0.01, 0.12),
+
+            "phosphorus_mg_kg":
+                previous.phosphorus_mg_kg
+                - self._random.uniform(0.005, 0.06),
+
+            "potassium_mg_kg":
+                previous.potassium_mg_kg
+                - self._random.uniform(0.01, 0.10),
+        }
+
+        return self._to_reading(
+            previous.field_id,
+            values,
+        )
+
+    def _to_reading(
+        self,
+        field_id: str,
+        values: dict[str, float],
+    ) -> FieldReading:
+
         bounded = {
-            name: round(max(lower, min(value, upper)), 2)
+            name: round(
+                max(lower, min(value, upper)),
+                2,
+            )
             for name, value in values.items()
             for lower, upper in [self._BOUNDS[name]]
         }
+
         return FieldReading(
             field_id=field_id,
             timestamp=datetime.now(timezone.utc),

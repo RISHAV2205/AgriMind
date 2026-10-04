@@ -37,3 +37,4 @@ agents/disease_agent/models/
 # Large datasets
 agents/disease_agent/data/
 datasets/
+.env

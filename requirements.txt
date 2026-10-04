@@ -4,6 +4,9 @@ python-multipart>=0.0.9,<1.0
 langgraph>=0.2,<1.0
 pydantic>=2.7,<3.0
 httpx>=0.27,<1.0
+sqlalchemy>=2.0,<3.0
+psycopg[binary]>=3.2,<4.0
+python-dotenv>=1.0,<2.0
 
 # Existing disease-agent runtime dependencies
 torch
