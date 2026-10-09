@@ -32,7 +32,10 @@ class FieldDataSimulator:
 
     def __init__(self, seed: int | None = None) -> None:
         self._random = random.Random(seed)
-
+#     Why = None?
+    # This part:
+    # = None
+# means the parameter is optional when calling the function.
     def get_reading(
         self,
         field_id: str,
@@ -55,7 +58,7 @@ class FieldDataSimulator:
             name: self._random.uniform(*value_range)
             for name, value_range in self._INITIAL_RANGES.items()
         }
-
+        print(values)
         return self._to_reading(field_id, values)
 
     def _next_reading(
@@ -67,6 +70,7 @@ class FieldDataSimulator:
         # Moisture generally decreases between irrigation events.
         moisture_change = (
             -self._random.uniform(0.10, 0.55)
+            # This generates a random value around 0.
             + self._random.gauss(0, 0.12)
         )
 
@@ -76,6 +80,7 @@ class FieldDataSimulator:
 
             "soil_temperature_c":
                 previous.soil_temperature_c
+                # We use Gaussian noise because temperature usually doesn't jump wildly from one sensor reading to the next.
                 + self._random.gauss(0, 0.35),
 
             "soil_ph":
@@ -83,6 +88,8 @@ class FieldDataSimulator:
                 + self._random.gauss(0, 0.012),
 
             "nitrogen_mg_kg":
+                # Why decrease?
+                # Because crops consume nutrients over time.
                 previous.nitrogen_mg_kg
                 - self._random.uniform(0.01, 0.12),
 
@@ -99,7 +106,7 @@ class FieldDataSimulator:
             previous.field_id,
             values,
         )
-
+    # Make sure every sensor value stays within the allowed range and round it to 2 decimal places.
     def _to_reading(
         self,
         field_id: str,
