@@ -9,7 +9,7 @@ from typing import Protocol
 class FieldReading:
     """One normalized snapshot of soil values for a field."""
 
-    field_id: str
+    field_id: int
     soil_moisture_percent: float
     soil_temperature_c: float
     soil_ph: float

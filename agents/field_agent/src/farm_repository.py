@@ -8,7 +8,6 @@ import psycopg
 
 from database.connection import get_database_url
 
-
 class FarmRepository:
     """Read farmers and the fields they own."""
 
