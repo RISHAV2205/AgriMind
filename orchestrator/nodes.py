@@ -1,6 +1,7 @@
-"""LangGraph nodes. Each node delegates a single domain responsibility."""
+# ""LangGraph nodes. Each node delegates a single domain responsibility."""
 
 from agents.disease_agent.service import DiseaseAgent
+from agents.field_agent.src.simulator_agent import FieldSimulatorAgent
 from agents.weather_agent.service import WeatherAgent
 from orchestrator.state import AgriMindState
 
@@ -71,3 +72,53 @@ def make_weather_node(weather_agent: WeatherAgent):
         }
 
     return weather_node
+
+
+def make_field_node(field_agent: FieldSimulatorAgent):
+    """Create the optional field-data node for a selected field."""
+
+    def field_node(state: AgriMindState) -> AgriMindState:
+        field_id = state.get("field_id")
+        if not field_id:
+            return {
+                "field_data": None,
+                "agent_runs": [
+                    {
+                        "name": "field_agent",
+                        "status": "skipped",
+                        "warnings": ["Field data was skipped because no field_id was provided."],
+                    }
+                ],
+                "warnings": ["Add a field_id to include soil context."],
+            }
+
+        try:
+            result = field_agent.get_field_data(str(field_id))
+        except (ValueError, RuntimeError) as error:
+            return {
+                "field_data": None,
+                "agent_runs": [
+                    {
+                        "name": "field_agent",
+                        "status": "failed",
+                        "warnings": [str(error)],
+                    }
+                ],
+                "warnings": [f"Field context is unavailable: {error}"],
+                "status": "partial",
+            }
+
+        return {
+            "field_data": result["data"],
+            "agents_used": ["field_agent"],
+            "agent_runs": [
+                {
+                    "name": "field_agent",
+                    "status": "success",
+                    "warnings": result["warnings"],
+                }
+            ],
+            "warnings": result["warnings"],
+        }
+
+    return field_node
