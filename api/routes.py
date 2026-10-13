@@ -1,5 +1,4 @@
 """Versioned HTTP routes. Routes validate HTTP concerns only."""
-
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from api.schemas import (
@@ -13,17 +12,15 @@ from api.schemas import (
 )
 from agents.field_agent.src.farm_repository import FarmRepository
 from agents.field_agent.src.repository import FieldReadingRepository
-from agents.field_agent.src.simulator_agent import FieldSimulatorAgent
 from orchestrator.agent import AgriMindOrchestrator
 
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
 orchestrator = AgriMindOrchestrator()
-field_simulator = FieldSimulatorAgent()
+
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 DEFAULT_CROP = "Tomato"
-
 
 def _farm_repository() -> FarmRepository:
     """Build the repository lazily so importing routes never needs a database."""
@@ -147,7 +144,7 @@ def get_field_detail(
             timestamp=stored.timestamp.isoformat(),
         )
     else:
-        simulated = field_simulator.get_field_data(str(field_id))
+        simulated = orchestrator.field_simulator.get_field_data(str(field_id))
         data = simulated["data"]
         reading = FieldReadingResponse(
             field_id=data["field_id"],
@@ -189,7 +186,8 @@ async def analyze_field_leaf(
     """Diagnose a leaf photo for a specific field.
 
     This is the mobile-friendly entry point: the farmer picks a field, uploads
-    a photo, and the disease agent (plus weather when a location is known) runs.
+    a photo, and the disease agent (plus weather and field context when known)
+    runs.
     """
     if image.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
@@ -208,6 +206,7 @@ async def analyze_field_leaf(
             crop=crop,
             image_bytes=image_bytes,
             location=location,
+            field_id=field_id,
         )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
