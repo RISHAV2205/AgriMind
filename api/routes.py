@@ -144,7 +144,7 @@ def get_field_detail(
             timestamp=stored.timestamp.isoformat(),
         )
     else:
-        simulated = orchestrator.field_simulator.get_field_data(str(field_id))
+        simulated = FieldReadingRepository.get_latest(str(field_id))
         data = simulated["data"]
         reading = FieldReadingResponse(
             field_id=data["field_id"],

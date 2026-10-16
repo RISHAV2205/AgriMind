@@ -14,7 +14,6 @@ class DiseasePrediction(BaseModel):
 
 class AgentExecution(BaseModel):
     """Traceable, safe-to-return summary of an agent invocation."""
-
     name: str
     status: Literal["success", "skipped", "failed"]
     warnings: list[str] = Field(default_factory=list)
