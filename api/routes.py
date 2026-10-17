@@ -110,28 +110,31 @@ def list_fields(farmer_id: int) -> list[FieldSummary]:
     return [FieldSummary(**field) for field in fields]
 
 
+
 @router.get("/fields/{field_id}", response_model=FieldDetailResponse)
 def get_field_detail(
     field_id: int,
     location: str | None = None,
     crop: str | None = None,
 ) -> FieldDetailResponse:
-    """Return one field with its latest soil reading and optional weather.
+    """Return field details, latest stored reading, and optional weather."""
 
-    The latest stored reading is used when available; otherwise a simulated
-    reading is generated so the dashboard still has something to show during
-    development.
-    """
-    repository = _farm_repository()
-    field = repository.get_field(field_id)
+    farm_repository = _farm_repository()
+    field = farm_repository.get_field(field_id)
+
     if field is None:
-        raise HTTPException(status_code=404, detail="Field not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Field not found.",
+        )
 
     warnings: list[str] = []
-
     reading: FieldReadingResponse | None = None
-    readings = _field_reading_repository()
-    stored = readings.get_latest(str(field_id))
+
+    # Fetch the latest stored reading once.
+    reading_repository = _field_reading_repository()
+    stored = reading_repository.get_latest(str(field_id))
+
     if stored is not None:
         reading = FieldReadingResponse(
             field_id=stored.field_id,
@@ -144,25 +147,18 @@ def get_field_detail(
             timestamp=stored.timestamp.isoformat(),
         )
     else:
-        simulated = orchestrator.field_simulator.get_field_data(str(field_id))
-        data = simulated["data"]
-        reading = FieldReadingResponse(
-            field_id=data["field_id"],
-            soil_moisture_percent=data["soil_moisture_percent"],
-            soil_temperature_c=data["soil_temperature_c"],
-            soil_ph=data["soil_ph"],
-            nitrogen_mg_kg=data["nitrogen_mg_kg"],
-            phosphorus_mg_kg=data["phosphorus_mg_kg"],
-            potassium_mg_kg=data["potassium_mg_kg"],
-            timestamp=data["timestamp"],
+        warnings.append(
+            "No stored sensor reading is available for this field yet."
         )
-        warnings.append("Showing simulated sensor data; no stored reading found.")
 
+    # Fetch weather independently so a weather failure does not
+    # prevent the field details from being returned.
     weather: dict | None = None
+
     if location:
         try:
-            weather_result = orchestrator._weather_agent.get_forecast(location)  # noqa: SLF001
-            weather = weather_result["data"]
+            weather_result = orchestrator._weather_agent.get_forecast(location)
+            weather = weather_result.get("data")
         except (ValueError, RuntimeError) as error:
             warnings.append(f"Weather unavailable: {error}")
 
