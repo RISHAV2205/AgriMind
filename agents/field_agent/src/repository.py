@@ -59,7 +59,7 @@ class FieldReadingRepository:
             connection.commit()
 
         return reading_id
-
+                                                                                                    
     def get_latest(self, field_id: str) -> FieldReading | None:
         """Return the latest stored reading for a field."""
 

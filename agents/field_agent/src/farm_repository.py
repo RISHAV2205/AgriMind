@@ -79,3 +79,25 @@ class FarmRepository:
             return None
 
         return {"id": row[0], "name": row[1], "farmer_id": row[2]}
+    
+    
+
+    def get_all_fields(self) -> list[dict]:
+        """Return all registered fields."""
+
+        query = """
+            SELECT id, name, farmer_id
+            FROM fields
+            ORDER BY id;
+        """
+
+        with psycopg.connect(self._database_url) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+
+        return [
+            {"id": row[0], "name": row[1], "farmer_id": row[2]}
+            for row in rows
+        ]
+
