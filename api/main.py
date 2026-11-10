@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(
         generate_readings,
         trigger="interval",
-        seconds=30,
+        seconds=10000,
         id="field_readings",
         replace_existing=True,
         max_instances=1,
@@ -58,8 +58,11 @@ app.add_middleware(
         "http://127.0.0.1:8000",
         "http://localhost:8000",
     ],
+    # • your frontend application can safely pass along HTTP cookies, Authorization headers (like Bearer tokens), and TLS client certificates. If you turn this to False, the browser will automatically strip these credentials out before hitting your endpoint, which breaks authentication systems like sessions or JWTs stored in cookies.
     allow_credentials=True,
+    # The "*" wildcard acts as a universal green light for HTTP request types. It means your backend accepts any request format—whether it's fetching data (GET), submitting forms (POST), updating database fields (PUT, PATCH), or removing entries (DELETE).
     allow_methods=["*"],
+    # This wildcard allows the frontend to include any custom or standard HTTP headers. This is highly important for modern single-page applications (SPAs), which regularly attach headers like Content-Type: application/json or custom authentication markers (e.g., X-API-KEY).
     allow_headers=["*"],
 )
 

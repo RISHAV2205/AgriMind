@@ -3,6 +3,7 @@
 from agents.disease_agent.service import DiseaseAgent
 from agents.field_agent.src.simulator_agent import FieldSimulatorAgent
 from agents.weather_agent.service import WeatherAgent
+from agents.recommendation_agent.service import RecommendationAgent
 from orchestrator.graph import build_graph
 
 
@@ -17,6 +18,7 @@ class AgriMindOrchestrator:
             self._disease_agent,
             self._weather_agent,
             self._field_agent,
+            RecommendationAgent(),
         )
 
     def analyze(
@@ -31,6 +33,8 @@ class AgriMindOrchestrator:
         normalized_crop = crop.strip()
         if not normalized_crop:
             raise ValueError("Crop is required.")
+        if normalized_crop.casefold() not in {"tomato", "tomatoes"}:
+            raise ValueError("The current leaf-disease model supports tomato only.")
 
         state = self._graph.invoke(
             {

@@ -17,7 +17,6 @@ from orchestrator.agent import AgriMindOrchestrator
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
 orchestrator = AgriMindOrchestrator()
 
-
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 DEFAULT_CROP = "Tomato"
@@ -83,6 +82,7 @@ async def analyze_crop(
         disease=DiseasePrediction(**disease) if disease else None,
         weather=result.get("weather"),
         treatment=result.get("treatment"),
+        recommendations=result.get("recommendations", []),
         agents_used=result.get("agents_used", []),
         agent_runs=[AgentExecution(**run) for run in result.get("agent_runs", [])],
         warnings=result.get("warnings", []),
@@ -219,6 +219,7 @@ async def analyze_field_leaf(
         disease=DiseasePrediction(**disease) if disease else None,
         weather=result.get("weather"),
         treatment=result.get("treatment"),
+        recommendations=result.get("recommendations", []),
         agents_used=result.get("agents_used", []),
         agent_runs=[AgentExecution(**run) for run in result.get("agent_runs", [])],
         warnings=warnings,

@@ -11,6 +11,7 @@ class AgriMindState(TypedDict, total=False):
     weather: dict[str, Any] | None
     field_data: dict[str, Any] | None
     treatment: dict[str, Any] | None
+    recommendations: list[dict[str, Any]]
     # These fields collect outputs from every node instead of being overwritten.
     agents_used: Annotated[list[str], operator.add]
     agent_runs: Annotated[list[dict[str, Any]], operator.add]
