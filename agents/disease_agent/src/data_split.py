@@ -47,13 +47,10 @@ val_groups, test_groups = train_test_split(
 
 # Assign splits
 split_map = {}
-
 for g in train_groups["group"]:
     split_map[g] = "train"
-
 for g in val_groups["group"]:
     split_map[g] = "val"
-
 for g in test_groups["group"]:
     split_map[g] = "test"
 

@@ -18,6 +18,17 @@ class AgentExecution(BaseModel):
     status: Literal["success", "skipped", "failed"]
     warnings: list[str] = Field(default_factory=list)
 
+
+class Recommendation(BaseModel):
+    """Practical next step with its basis and any limits."""
+
+    priority: Literal["high", "medium", "low"]
+    category: Literal["crop_health", "fertilizer", "profitability"]
+    title: str
+    action: str
+    reason: str
+    basis: str
+
 class AnalyzeResponse(BaseModel):
     """Stable API response that can grow as new agents are connected."""
     status: Literal["success", "partial"]
@@ -25,6 +36,7 @@ class AnalyzeResponse(BaseModel):
     disease: DiseasePrediction | None = None
     weather: dict[str, Any] | None = None
     treatment: dict[str, Any] | None = None
+    recommendations: list[Recommendation] = Field(default_factory=list)
     agents_used: list[str] = Field(default_factory=list)
     agent_runs: list[AgentExecution] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)

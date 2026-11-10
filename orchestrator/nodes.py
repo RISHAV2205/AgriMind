@@ -2,6 +2,7 @@
 
 from agents.disease_agent.service import DiseaseAgent
 from agents.field_agent.src.simulator_agent import FieldSimulatorAgent
+from agents.recommendation_agent.service import RecommendationAgent
 from agents.weather_agent.service import WeatherAgent
 from orchestrator.state import AgriMindState
 
@@ -122,3 +123,28 @@ def make_field_node(field_agent: FieldSimulatorAgent):
         }
 
     return field_node
+
+
+def make_recommendation_node(recommendation_agent: RecommendationAgent):
+    """Create transparent recommendations from the verified workflow outputs."""
+
+    def recommendation_node(state: AgriMindState) -> AgriMindState:
+        result = recommendation_agent.recommend(
+            crop=state.get("crop", "crop"),
+            disease=state.get("disease"),
+            field_data=state.get("field_data"),
+        )
+        return {
+            "recommendations": result["data"],
+            "agents_used": ["recommendation_agent"],
+            "agent_runs": [
+                {
+                    "name": "recommendation_agent",
+                    "status": "success",
+                    "warnings": result["warnings"],
+                }
+            ],
+            "warnings": result["warnings"],
+        }
+
+    return recommendation_node
